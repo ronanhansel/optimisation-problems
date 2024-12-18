@@ -27,6 +27,7 @@ def solve_cvrp():
     for k in range(K):
         truck_load[k] = model.NewIntVar(0, Q, f'load_{k}')
     
+
     # Constraints
     # 1. Each client visited exactly once
     for j in range(1, n + 1):

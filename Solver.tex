@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    breaklines=true
+}
+
+\begin{document}
+
+\title{Optimisation Problems Collection}
+\author{SOICT - HUST (IT3052E)}
+\maketitle
+
+\section{Introduction}
+This is a collection of solvers developed during the optimisation course at SOICT - HUST (IT3052E). Note that these implementations draw from various external resources due to the complexity of constraint programming.
+
+\section{Capacitated Vehicle Routing Problem}
+
+\subsection{Problem Statement}
+Consider a fleet of K identical trucks with capacity Q that must deliver packages from a central depot (0) to clients (1,2,\ldots,n). Each client i requires d[i] packages, with distances c[i,j] between locations i and j.
+
+\textbf{Constraints:}
+\begin{itemize}
+    \item Each client must be visited exactly once
+    \item Total package load per truck cannot exceed capacity Q
+\end{itemize}
+
+\textbf{Objective:} Minimize total travel distance
+
+\subsection{Input Format}
+\begin{verbatim}
+Line 1: n,K,Q (2<=n<=12,1<=K<=5,1<=Q<=50)
+Line 2: d[1],...,d[n] (1<=d[i]<=10)
+Lines 3-(n+3): Distance matrix c[i,j] (1<=c[i,j]<=30)
+\end{verbatim}
+
+\subsection{Example}
+\textbf{Input:}
+\begin{verbatim}
+4 2 15
+7 7 11 2
+0 12 12 11 14
+14 0 11 14 14
+14 10 0 11 12
+10 14 12 0 13
+10 13 14 11 0
+\end{verbatim}
+
+\textbf{Output:}
+\begin{verbatim}
+70
+\end{verbatim}
+
+\subsection{Solution Approach}
+Using Constraint Programming (CP) with Google OR-Tools, the key constraints are:
+\begin{enumerate}
+    \item Client visitation constraint
+    \item Capacity constraint
+    \item Flow conservation
+    \item Subtour elimination
+\end{enumerate}
+
+\end{document}
