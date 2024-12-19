@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}Capacitated Vehicle Routing Problem}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Problem Statement}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}I/O Format}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Solution Approach}{4}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Client visitation constraint}{4}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Capacity constraint}{4}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Flow conservation}{4}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}Subtour elimination}{4}{subsubsection.2.3.4}%
+\contentsline {subsubsection}{\numberline {2.3.5}Objective function}{5}{subsubsection.2.3.5}%
+\contentsline {section}{\numberline {3}Balanced Courses Assisgnment Problem}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Problem Statement}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}I/O Format}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Solution Approach}{6}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Preferences constraint}{6}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Conflict constraint}{7}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}Boolean constraint}{7}{subsubsection.3.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.4}Objective function}{7}{subsubsection.3.3.4}%

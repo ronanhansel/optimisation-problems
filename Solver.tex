@@ -3,6 +3,26 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage{titling}
+
+\pretitle{\begin{center}\Huge\bfseries} % Center and make title huge and bold
+\posttitle{\par\end{center}}  % End centering after the title
+
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}}%
+}
+
+\preauthor{
+    \begin{center}
+    \vfill
+} % Center and add a bit of space before
+\postauthor{\large\end{center}} % End centering and make author large
+
 
 \lstset{
     language=Python,
@@ -14,20 +34,24 @@
 }
 
 \begin{document}
-
 \title{Optimisation Problems Collection}
-\author{SOICT - HUST (IT3052E)}
+\subtitle{SOICT - HUST (IT3052E)}
+\author{Manh Duc, Tran Vu}
+\date{}
 \maketitle
-
+\pagebreak
+\tableofcontents
+\pagebreak
 \section{Introduction}
 This is a collection of solvers developed during the optimisation course at SOICT - HUST (IT3052E). Note that these implementations draw from various external resources due to the complexity of constraint programming.
 
 \section{Capacitated Vehicle Routing Problem}
 
 \subsection{Problem Statement}
-Consider a fleet of K identical trucks with capacity Q that must deliver packages from a central depot (0) to clients (1,2,\ldots,n). Each client i requires d[i] packages, with distances c[i,j] between locations i and j.
+A fleet of K identical trucks having capacity Q need to be scheduled to deliver pepsi packages from a central depot 0 to clients 1,2,…,n. Each client i requests d[i] packages. The distance from location i to location j is c[i,j], $0 \leq i,j \leq n$. A delivery solution is a set of routes: each truck is associated with a route, starting from depot, visiting some clients and returning to the depot for delivering requested pepsi packages.
 
 \textbf{Constraints:}
+
 \begin{itemize}
     \item Each client must be visited exactly once
     \item Total package load per truck cannot exceed capacity Q
@@ -35,14 +59,18 @@ Consider a fleet of K identical trucks with capacity Q that must deliver package
 
 \textbf{Objective:} Minimize total travel distance
 
-\subsection{Input Format}
-\begin{verbatim}
-Line 1: n,K,Q (2<=n<=12,1<=K<=5,1<=Q<=50)
-Line 2: d[1],...,d[n] (1<=d[i]<=10)
-Lines 3-(n+3): Distance matrix c[i,j] (1<=c[i,j]<=30)
-\end{verbatim}
+\subsection{I/O Format}
+Input:
+\begin{itemize}
+    \item Line 1: n,K,Q $(2\le n\le 12,1\le K\le 5,1\le Q\le50)$
+    \item Line 2: d[1],...,d[n] $(1\le d[i]\le 10)$
+    \item Line i+3 (i=0,…,n): the ith row of the distance matrix c $(1\le c[i,j]\le 30)$
+\end{itemize}
+Output: Minimal total travel distance.
 
-\subsection{Example}
+E.g.
+
+\begin{multicols}{2}
 \textbf{Input:}
 \begin{verbatim}
 4 2 15
@@ -53,19 +81,158 @@ Lines 3-(n+3): Distance matrix c[i,j] (1<=c[i,j]<=30)
 10 14 12 0 13
 10 13 14 11 0
 \end{verbatim}
-
+\columnbreak
 \textbf{Output:}
 \begin{verbatim}
 70
 \end{verbatim}
+\end{multicols}
+
 
 \subsection{Solution Approach}
-Using Constraint Programming (CP) with Google OR-Tools, the key constraints are:
-\begin{enumerate}
-    \item Client visitation constraint
-    \item Capacity constraint
-    \item Flow conservation
-    \item Subtour elimination
-\end{enumerate}
+Using CP, we need to formulate the constraints. For this problem, the constraints are:
+\subsubsection{Client visitation constraint}
+Each client is visited exactly once.
+\begin{lstlisting}[language=Python]
+for j in range(1, n + 1):
+    model.Add(sum(x[i,j,k] for i in range(n + 1) for k in range(K) if i != j) == 1)
+\end{lstlisting}
+
+\subsubsection{Capacity constraint}
+Total number of packages requested by clients cannot exceed its capacity.
+\begin{lstlisting}[language=Python]
+for k in range(K):
+    model.Add(sum(demands[j] * sum(x[i,j,k] for i in range(n + 1) if i != j) for j in range(1, n + 1)) <= Q)
+\end{lstlisting}
+
+\subsubsection{Flow conservation}
+For each node, the sent package must be exhaustive. In other words, the number of incoming packages must be equal to the outgoing packages.
+\begin{lstlisting}[language=Python]
+for k in range(K):
+    for j in range(n + 1):
+        model.Add(sum(x[i,j,k] for i in range(n + 1) if i != j) == sum(x[j,i,k] for i in range(n + 1) if i != j))
+\end{lstlisting}
+
+\subsubsection{Subtour elimination}
+No subtour (circular routes that aren't the solution)
+\begin{lstlisting}[language=Python]
+    u = {}
+    for i in range(n + 1):
+        for k in range(K):
+            u[i,k] = model.NewIntVar(0, n, f'u_{i}_{k}')
+    
+    for i in range(1, n + 1):
+        for j in range(1, n + 1):
+            for k in range(K):
+                if i != j:
+                    model.Add(u[i,k] - u[j,k] + n * x[i,j,k] <= n - 1)
+\end{lstlisting}
+
+\subsubsection{Objective function}
+The objective of this problem is to minimise the total distance
+\begin{lstlisting}[language=Python]
+total_dist = sum(dist[i][j] * x[i,j,k] for i in range(n + 1) for j in range(n + 1) for k in range(K) if i != j)
+model.Minimize(total_dist)
+\end{lstlisting}
+
+
+\section{Balanced Courses Assisgnment Problem}
+\subsection{Problem Statement}
+At the beginning of the semester, the head of a computer science department D have to assign courses to teachers in a balanced way. The department D has m teachers T={1,2,...,m} and n courses C={1,2,...,n}. Each teacher $t \in T$ has a preference list which is a list of courses he/she can teach depending on his/her specialization. We have known a list of pairs of conflicting two courses that cannot be assigned to the same teacher as these courses have been already scheduled in the same slot of the timetable. The load of a teacher is the number of courses assigned to her/him. How to assign n courses to m teacher such that each course assigned to a teacher is in his/her preference list, no two conflicting courses are assigned to the same teacher, and the maximal load is minimal.
+
+\subsection{I/O Format}
+Input:
+\begin{itemize}
+    \item Line 1: contains two integer m and n $(1\le m \le 10, 1 \le n \le 30)$
+    \item Line i+1: contains an positive integer k and k positive integers indicating the courses that teacher i can teach $(\forall i=1,\ldots,m)$
+    \item Line m+2: contains an integer k
+    \item Line i+m+2: contains two integer i and j indicating two conflicting courses $(\forall i=1,\ldots,k)$
+\end{itemize}
+Output: The output contains a unique number which is the maximal load of the teachers in the solution found and the value -1 if not solution found.
+\pagebreak
+
+E.g.
+\begin{multicols}{2}
+\textbf{Input:}
+\begin{verbatim}
+4 12
+5 1 3 5 10 12
+5 9 3 4 8 12
+6 1 2 3 4 9 7
+7 1 2 3 5 6 10 11
+25
+1 2
+1 3
+1 5
+2 4
+2 5
+2 6
+3 5
+3 7
+3 10
+4 6
+4 9
+5 6
+5 7
+5 8
+6 8
+6 9
+7 8
+7 10
+7 11
+8 9
+8 11
+8 12
+9 12
+10 11
+11 12
+\end{verbatim}
+\columnbreak
+\textbf{Output:}
+\begin{verbatim}
+3
+\end{verbatim}
+\end{multicols}
+
+\subsection{Solution Approach}
+The problem can be solved using CP. The constraints are:
+\subsubsection{Preferences constraint}
+Each course must be assigned to a teacher who has it in his/her preference list.
+\pagebreak
+\begin{lstlisting}[language=Python]
+for course in range(1, n+1):
+    allowed_teachers = [t for t in range(1, m+1) if course in preferences[t]]
+    for teacher in range(1, m+1):
+        if teacher not in allowed_teachers:
+            model.Add(course_teacher[course] != teacher)
+\end{lstlisting}
+
+\subsubsection{Conflict constraint}
+Two conflicting courses cannot be assigned to the same teacher.
+\begin{lstlisting}[language=Python]
+for c1, c2 in conflicting
+    model.Add(course_teacher[c1] != course_teacher[c2])
+\end{lstlisting}
+
+\subsubsection{Boolean constraint}
+The main part of the problem is to assign each course to a teacher. This can be done using a boolean variable. We can define them as boolean constraints where if a teach is selected, the course is assigned to him/her. In other words, if the course is assigned to a teacher, the boolean variable is true.
+
+\begin{lstlisting}[language=Python]
+for teacher in range(1, m+1):
+    teaches_vars = []
+    for course in range(1, n+1):
+        teaches = model.NewBoolVar(f'teaches_{teacher}_{course}')
+        model.Add(course_teacher[course] == teacher).OnlyEnforceIf(teaches)
+        model.Add(course_teacher[course] != teacher).OnlyEnforceIf(teaches.Not())
+        teaches_vars.append(teaches)
+    model.Add(teacher_load[teacher] == sum(teaches_vars))
+    model.Add(max_load >= teacher_load[teacher])
+\end{lstlisting}
+
+\subsubsection{Objective function}
+The objective of this problem is to minimise the maximal load of the teachers.
+\begin{lstlisting}[language=Python]
+model.Minimize(max_load)
+\end{lstlisting}
 
 \end{document}
