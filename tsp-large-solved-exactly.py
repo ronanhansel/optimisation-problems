@@ -52,7 +52,6 @@ def solve_tsp():
         # Output
         print(n)
         print(' '.join(str(x + 1) for x in tour))
-        print(sum(dist[i][tour[i]] for i in range(n)))
 
 
 if __name__ == "__main__":
