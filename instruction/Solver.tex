@@ -1,4 +1,5 @@
 \documentclass{article}
+
 \usepackage{listings}
 \usepackage{amsmath}
 \usepackage{hyperref}
@@ -65,7 +66,7 @@ A fleet of K identical trucks having capacity Q need to be scheduled to deliver 
 Input:
 \begin{itemize}
     \item Line 1: n,K,Q $(2\le n\le 12,1\le K\le 5,1\le Q\le50)$
-    \item Line 2: d[1],...,d[n] $(1\le d[i]\le 10)$
+    \item Line 2: d[1],\dots,d[n] $(1\le d[i]\le 10)$
     \item Line i+3 (i=0,…,n): the ith row of the distance matrix c $(1\le c[i,j]\le 30)$
 \end{itemize}
 Output: Minimal total travel distance.
@@ -92,22 +93,23 @@ E.g.
 
 
 \subsection{Solution Approach}
+\subsubsection{Constraints}
+
 Using CP, we need to formulate the constraints. For this problem, the constraints are:
-\subsubsection{Client visitation constraint}
-Each client is visited exactly once.
+
+Each client is visited exactly once
+\pagebreak
 \begin{lstlisting}[language=Python]
 for j in range(1, n + 1):
     model.Add(sum(x[i,j,k] for i in range(n + 1) for k in range(K) if i != j) == 1)
 \end{lstlisting}
 
-\subsubsection{Capacity constraint}
 Total number of packages requested by clients cannot exceed its capacity.
 \begin{lstlisting}[language=Python]
 for k in range(K):
     model.Add(sum(demands[j] * sum(x[i,j,k] for i in range(n + 1) if i != j) for j in range(1, n + 1)) <= Q)
 \end{lstlisting}
 
-\subsubsection{Flow conservation}
 For each node, the sent package must be exhaustive. In other words, the number of incoming packages must be equal to the outgoing packages.
 \begin{lstlisting}[language=Python]
 for k in range(K):
@@ -115,7 +117,6 @@ for k in range(K):
         model.Add(sum(x[i,j,k] for i in range(n + 1) if i != j) == sum(x[j,i,k] for i in range(n + 1) if i != j))
 \end{lstlisting}
 
-\subsubsection{Subtour elimination}
 No subtour (circular routes that aren't the solution)
 \begin{lstlisting}[language=Python]
     u = {}
@@ -141,7 +142,7 @@ model.Minimize(total_dist)
 
 \section{Balanced Courses Assisgnment Problem}
 \subsection{Problem Statement}
-At the beginning of the semester, the head of a computer science department D have to assign courses to teachers in a balanced way. The department D has m teachers T={1,2,...,m} and n courses C={1,2,...,n}. Each teacher $t \in T$ has a preference list which is a list of courses he/she can teach depending on his/her specialization. We have known a list of pairs of conflicting two courses that cannot be assigned to the same teacher as these courses have been already scheduled in the same slot of the timetable. The load of a teacher is the number of courses assigned to her/him. How to assign n courses to m teacher such that each course assigned to a teacher is in his/her preference list, no two conflicting courses are assigned to the same teacher, and the maximal load is minimal.
+At the beginning of the semester, the head of a computer science department D have to assign courses to teachers in a balanced way. The department D has m teachers T={1,2,\dots,m} and n courses C={1,2,\dots,n}. Each teacher $t \in T$ has a preference list which is a list of courses he/she can teach depending on his/her specialization. We have known a list of pairs of conflicting two courses that cannot be assigned to the same teacher as these courses have been already scheduled in the same slot of the timetable. The load of a teacher is the number of courses assigned to her/him. How to assign n courses to m teacher such that each course assigned to a teacher is in his/her preference list, no two conflicting courses are assigned to the same teacher, and the maximal load is minimal.
 
 \subsection{I/O Format}
 Input:
@@ -198,8 +199,9 @@ E.g.
 \end{multicols}
 
 \subsection{Solution Approach}
+\subsubsection{Constraints}
 The problem can be solved using CP. The constraints are:
-\subsubsection{Preferences constraint}
+
 Each course must be assigned to a teacher who has it in his/her preference list.
 \pagebreak
 \begin{lstlisting}[language=Python]
@@ -209,15 +211,11 @@ for course in range(1, n+1):
         if teacher not in allowed_teachers:
             model.Add(course_teacher[course] != teacher)
 \end{lstlisting}
-
-\subsubsection{Conflict constraint}
 Two conflicting courses cannot be assigned to the same teacher.
 \begin{lstlisting}[language=Python]
 for c1, c2 in conflicting
     model.Add(course_teacher[c1] != course_teacher[c2])
 \end{lstlisting}
-
-\subsubsection{Boolean constraint}
 The main part of the problem is to assign each course to a teacher. 
 This can be done using a boolean variable. 
 We can define them as boolean constraints where if a teach is selected, the course is assigned to him/her. 
@@ -246,18 +244,18 @@ model.Minimize(max_load)
 \section{N-Queens Problem}
 \subsection{Problem Statement}
 Find a solution to place n queens on a chess board such that no two queens attack each other.
-A solution is represented by a sequence of variables: x[1], x[2], . . ., x[n] in which x[i]
-is the row of the queen on column i (i = 1, . . ., n)
+A solution is represented by a sequence of variables: $x[1], x[2], \dots , x[n]$ in which $x[i]$
+is the row of the queen on column $i (i = 1, \dots , n)$
 
 \subsection{I/O Format}
 Input:
 \begin{itemize}
-    \item Line 1: contains a positive integer n $(10 \le n \le 10000)$
+    \item Line 1: contains a positive integer $n(10 \le n \le 10000)$
 \end{itemize}
 Output:
 \begin{itemize}
     \item Line 1: write n 
-    \item Line 2: write x[1], x[2],  . . ., x[n] (after each value is a SPACE character)
+    \item Line 2: write $x[1], x[2],  \dots , x[n]$ (after each value is a SPACE character)
 \end{itemize}
 E.g.
 
@@ -274,14 +272,12 @@ E.g.
 \end{multicols}
 
 \subsection{Solution Approach}
+\subsubsection{Constraints}
 The problem can be solved using CP. The constraints are:
-\subsubsection{Row constraint}
 Each row must have exactly one queen.
 \begin{lstlisting}[language=Python]
 model.AddAllDifferent(x)
 \end{lstlisting}
-
-\subsubsection{Diagonal constraint}
 No two queens can be on the same diagonal.
 \begin{lstlisting}[language=Python]
 for i in range(n):
@@ -301,9 +297,9 @@ status = solver.Solve(model)
 
 \section{Traveling Salesman Problem}
 \subsection{Problem Statement}
-There are n cities 1, 2, ..., n. 
-The travel distance from city i to city j is c(i, j), for i, j = 1, 2, ..., n.  
-A person departs from city 1, visits each city 2, 3, ..., n exactly once and comes back to city 1. Find the itinerary for that person so that the total travel distance is minimal.
+There are n cities $1, 2, \dots, n$. 
+The travel distance from city i to city j is c(i, j), for $i, j = 1, 2, \dots, n$.  
+A person departs from city 1, visits each city 2, 3, \dots, n exactly once and comes back to city 1. Find the itinerary for that person so that the total travel distance is minimal.
 A solution is represented by a sequence of n variables $x[1], x[2], \dots , x[n]$ in which the tour is: $x[1] \rightarrow x[2] \rightarrow \dots \rightarrow x[n] \rightarrow x[1]$.
 
 \subsection{I/O Format}
@@ -311,7 +307,7 @@ Input:
 
 \begin{itemize}
     \item Line 1: a positive integer n $(1 \le n \le 200)$
-    \item Line i+1 (i = 1, . . ., n): contains the ith row of the distance matrix $x$ (elements are separated by a SPACE character)
+    \item Line i+1 $(i = 1, . . ., n)$: contains the ith row of the distance matrix $x$ (elements are separated by a SPACE character)
 \end{itemize}
 
 Output:
@@ -341,7 +337,9 @@ E.g.
 \subsection{Solution Approach}
 The problem can be solved using CP.
 We thus need to formulate the constraints as follows:
-\subsubsection{Each city must be visited exactly once}
+\subsubsection{Constraints}
+Each city must be visited exactly once. To do this, we can use the circuit constraint.
+
 \begin{itemize}
     \item \verb |arcs|: a list of tuples \verb|(i, j, lit)| where lit is a boolean variable indicating whether the person goes from city i to city j.
 \end{itemize}
@@ -443,7 +441,7 @@ visit = [model.NewIntVar(0, 2*n, f'visit_{i}') for i in range(2*n + 1)]
 load = [model.NewIntVar(0, k, f'load_{i}') for i in range(2*n + 1)]
 \end{lstlisting}
 
-\subsection{Constraints}
+\subsubsection{Constraints}
 Circuit constraints
 \begin{itemize}
     \item The bus must start at point 0 and return to point 0.
@@ -492,7 +490,8 @@ For each passenger i, when picking up i, the load must be greater than initial s
 On the other hand, when dropping off i, the load must be less than the initial state.
 
 \subsubsection{Objective function}
-The objective of this problem is to minimise the total distance.
+The objective of this problem is to minimise the total distance. We do this by multiplying
+the distance matrix with the binary variables.
 \begin{lstlisting}[language=Python]
 total_distance = model.NewIntVar(0, sum(max(row) for row in c), 'total_distance')
 model.Add(total_distance == sum(c[i, j] * x[i, j] for i in range (2*n + 1) for j in range(2*n + 1) if i != j))
