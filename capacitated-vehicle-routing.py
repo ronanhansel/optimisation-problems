@@ -21,7 +21,6 @@ def solve_cvrp():
             for k in range(K):
                 if i != j:
                     x[i,j,k] = model.NewBoolVar(f'x_{i}_{j}_{k}')
-    
     # truck_load[k] = total load of truck k
     truck_load = {}
     for k in range(K):
